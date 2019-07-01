@@ -167,6 +167,17 @@ int processgraph() {
    }
    return 0 ;
 }
+int kforce = -1 ;
+int nforce = -1 ;
+int check(int n) {
+   if (n == 0)
+      return 0 ;
+   if (nforce > 0 && n != nforce)
+      return 0 ;
+   if (kforce > 0 && (int)edges.size() != n * kforce / 2)
+      return 0 ;
+   return 1 ;
+}
 int main(int argc, char *argv[]) {
    while (argc > 1 && argv[1][0] == '-') {
       argc-- ;
@@ -174,6 +185,16 @@ int main(int argc, char *argv[]) {
       switch (argv[0][1]) {
 case 'x':
          excess = atol(argv[1]) ;
+         argc-- ;
+         argv++ ;
+         break ;
+case 'n':
+         nforce = atol(argv[1]) ;
+         argc-- ;
+         argv++ ;
+         break ;
+case 'k':
+         kforce = atol(argv[1]) ;
          argc-- ;
          argv++ ;
          break ;
@@ -199,12 +220,12 @@ default:
             addedge(a, b) ;
          }
       } else {
-         if (n) {
+         if (check(n)) {
             processgraph() ;
-            newgraph() ;
          }
+         newgraph() ;
       }
    }
-   if (n)
+   if (check(n))
       processgraph() ;
 }

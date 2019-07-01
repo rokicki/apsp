@@ -132,9 +132,12 @@ int main(int argc, char *argv[]) {
             at++ ;
          }
       }
+      cout << "E is " << e << endl ;
       if (e)
          processgraph() ;
    }
+   if (e)
+      processgraph() ;
    if (early)
       cout << "Processed " << processed << "(early) n " << n << " k " << k << " best " << best << " opt " << goal << endl ;
    else

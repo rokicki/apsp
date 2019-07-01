@@ -26,7 +26,9 @@ for $f (glob "GRAPH-$n-$k-*.g6") {
 if ($best < 1e6) {
    $gavg = $opt + 2 * $best / ($n * ($n - 1)) ;
 }
-for $f (glob "apsp-$n-$k*.log") {
+@f1 = glob "apsp-$n-$k*.log" ;
+@f2 = glob "oldlogs/apsp-$n-$k*.log" ;
+for $f (@f1, @f2) {
    $f =~ /apsp-\d+-(\d+)/ ;
    next if $1 != $k ;
    open F, $f or die "Can't read $f" ;

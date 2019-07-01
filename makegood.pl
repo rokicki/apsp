@@ -33,7 +33,7 @@ for ($n=4; $n<=64; $n++) {
             system("~/nauty/nauty27rc2/showg -o1 < GRAPH-$n-$k-$e.g6 | ./apsp > t.adj") ;
             unshift @{$f[$n][$k]}, "t.adj" ;
          }
-         system("cat @{$f[$n][$k]} | ./gutil -x $e | ~/nauty/nauty27rc2/shortg -q > GRAPH-$n-$k-$e.g6") ;
+         system("cat @{$f[$n][$k]} | ./gutil -n $n -k $k -x $e | ~/nauty/nauty27rc2/shortg -q > GRAPH-$n-$k-$e.g6") ;
       }
    }
 }
