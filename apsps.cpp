@@ -296,7 +296,7 @@ default:
             addedge(j, (j+i+1)%n) ;
          left -= n ;
       } else {
-         if (i + i + 2 != n)
+         if (i % 2 == 1)
             continue ;
          for (int j=0; j<n; j += 2)
             addedge(j, (j+i+1)%n) ;
@@ -304,6 +304,9 @@ default:
       }
    }
    cout << "Edges is " << edges.size() << endl ;
+   for (int i=0; i<n; i++)
+      if (bc(bv[i]) != k)
+         error("! bad state right away") ;
    if ((int)edges.size() != n * k / (2 * ddiv)) {
       cout << "! bad size for this mod" << endl ;
       exit(0) ;
