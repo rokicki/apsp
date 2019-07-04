@@ -24,7 +24,9 @@ for $f (glob "oldlogs/apsp-*.log") {
    $k = $2 ;
    push @{$f[$n][$k]}, $f ;
 }
-for ($n=4; $n<=64; $n++) {
+for ($n=4; $n<=128; $n++) {
+   print " [$n]" ;
+   flush STDOUT ;
    for ($k=3; $k+1<$n; $k++) {
       next if ($k & 1) && ($n & 1) ;
       if (@{$f[$n][$k]}) {

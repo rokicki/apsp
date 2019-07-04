@@ -10,7 +10,7 @@
 #include <inttypes.h>
 #include <sys/time.h>
 using namespace std ;
-typedef unsigned long long ull ;
+typedef __uint128_t ull ;
 const int MAXBUF = 1000 ;
 char mbuf[MAXBUF+1] ;
 int e ;
@@ -18,18 +18,30 @@ int n ;
 const int MAXN = 128 ;
 const int INF = MAXN ;
 ull bv[MAXN] ;
+ull onebit[128] ;
 /* assumes bv is valid */
 int diameter ;
 void error(const char *s) {
    cerr << s << endl ;
    exit(10) ;
 }
+int bigpopcount(ull v) {
+   unsigned long long t1 = v ;
+   unsigned long long t2 = (v >> 64) ;
+   return __builtin_popcountll(t1) + __builtin_popcountll(t2) ;
+}
+int bigffs(ull v) {
+   unsigned long long t1 = v ;
+   if (t1)
+      return ffsll(t1) ;
+   return 64 + ffsll(v >> 64) ;
+}
 int fastapsp() {
    ull seen[MAXN] ;
    ull dodd[MAXN] ;
    ull deven[MAXN] ;
    for (int i=0; i<n; i++)
-      seen[i] = (1LL << i) | bv[i] ;
+      seen[i] = onebit[i] | bv[i] ;
    int cnt = n ;
    int d = 1 ;
    int left = n * n - n - 2 * e ;
@@ -44,14 +56,14 @@ int fastapsp() {
          ull r = 0 ;
          ull m = bv[i] ;
          while (m) {
-            int b = ffsll(m)-1 ;
-            m ^= 1LL << b ;
+            int b = bigffs(m)-1 ;
+            m ^= onebit[b] ;
             r |= dodd[b] ;
          }
          deven[i] = r ;
          ull nw = r & ~seen[i] ;
          seen[i] |= r ;
-         left -= __builtin_popcountll(nw) ;
+         left -= bigpopcount(nw) ;
       }
       if (left == 0)
          break ;
@@ -61,17 +73,17 @@ int fastapsp() {
          ull r = 0 ;
          ull m = bv[i] ;
          while (m) {
-            int b = ffsll(m)-1 ;
-            m ^= 1LL << b ;
+            int b = bigffs(m)-1 ;
+            m ^= onebit[b] ;
             r |= deven[b] ;
          }
          dodd[i] = r ;
          ull nw = r & ~seen[i] ;
          seen[i] |= r ;
-         left -= __builtin_popcountll(nw) ;
+         left -= bigpopcount(nw) ;
       }
       if (left == oleft)
-         return 1000000000 ;
+         return 100000000 ;
       if (left == 0)
          break ;
       sum += left ;
@@ -91,8 +103,8 @@ void newgraph() {
 void addedge(int a, int b) {
    if ((bv[a] >> b) & 1)
       return ;
-   bv[a] |= 1LL << b ;
-   bv[b] |= 1LL << a ;
+   bv[a] |= onebit[b] ;
+   bv[b] |= onebit[a] ;
    edges.push_back({a,b}) ;
    if (a >= n)
       n = a + 1 ;
@@ -163,6 +175,7 @@ int processgraph() {
    if (excess == -1 || check == sum + excess) {
       emitg() ;
    } else if (check < sum + excess) {
+      cerr << "check " << (check-sum) << " claimed " << excess << " n " << n << " k " << k << endl ;
       error("! saw a smaller sum") ;
    }
    return 0 ;
@@ -179,6 +192,10 @@ int check(int n) {
    return 1 ;
 }
 int main(int argc, char *argv[]) {
+   ull one = 1 ;
+   onebit[0] = one ;
+   for (int i=1; i<128; i++)
+      onebit[i] = onebit[i-1] + onebit[i-1] ;
    while (argc > 1 && argv[1][0] == '-') {
       argc-- ;
       argv++ ;
