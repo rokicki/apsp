@@ -15,7 +15,7 @@ const int MAXBUF = 1000 ;
 char mbuf[MAXBUF+1] ;
 int e ;
 int n ;
-const int MAXN = 64 ;
+const int MAXN = 128 ;
 const int INF = MAXN ;
 ull bv[MAXN] ;
 /* assumes bv is valid */

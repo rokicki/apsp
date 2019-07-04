@@ -17,7 +17,7 @@ while (<F>) {
 for ($i=0; $i<@v; $i++) {
    next if !$v[$i] ;
    printf("%2d:", $i) ;
-   for ($j=3; $j<32; $j++) {
+   for ($j=3; $j<=10; $j++) {
       if (($v[$i] >> $j) & 1) {
          $s = sprintf("%d:%d,%d", $j, $e[$i][$j], $d[$i][$j]) ;
          printf(" %-7s", $s) ;

@@ -6,7 +6,7 @@
 #include <cstdio>
 #include <inttypes.h>
 using namespace std ;
-const int MAXBUF = 1000 ;
+const int MAXBUF = 2000 ;
 char mbuf[MAXBUF+1] ;
 int n ;
 const int MAXN = 128 ;
@@ -44,7 +44,7 @@ int processgraph() {
          return 0 ;
       }
       k = 2 * e / n ;
-      if (k != goalk)
+      if (goalk > 0 && k != goalk)
          return 0 ;
       int left = n - 1 ;
       int sum = 0 ;
@@ -107,7 +107,8 @@ int processgraph() {
 int main(int argc, char *argv[]) {
    bool ingraph = 0 ;
    bool early = 0 ;
-   goalk = atol(argv[1]) ;
+   if (argc > 1)
+      goalk = atol(argv[1]) ;
    while (fgets(mbuf, MAXBUF, stdin)) {
       newgraph() ;
       int len = strlen(mbuf) ;
@@ -121,7 +122,7 @@ int main(int argc, char *argv[]) {
       }
       int xlen = off + ((localn * (localn-1) / 2) + 5) / 6 ;
       if (xlen != len) {
-         printf("Failed reading a graph\n") ;
+         printf("Failed reading a graph xlen %d len %d localn %d\n", xlen, len, localn) ;
          break ;
       }
       int at = 0 ;
@@ -133,8 +134,10 @@ int main(int argc, char *argv[]) {
          }
       }
       cout << "E is " << e << endl ;
-      if (e)
+      if (e) {
          processgraph() ;
+         newgraph() ;
+      }
    }
    if (e)
       processgraph() ;
