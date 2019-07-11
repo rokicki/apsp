@@ -11,9 +11,8 @@
 #include <inttypes.h>
 #include <sys/time.h>
 using namespace std ;
-typedef __uint128_t ull ;
-static double start, pstart ;
-double maxtime = 1000000000 ;
+typedef unsigned long long ull ;
+static double start ;
 double walltime() {
    struct timeval tv ;
    gettimeofday(&tv, 0) ;
@@ -29,31 +28,17 @@ const int MAXBUF = 1000 ;
 char mbuf[MAXBUF+1] ;
 int e ;
 int n ;
-const int MAXN = 128 ;
+const int MAXN = 64 ;
 const int INF = MAXN ;
-ull onebit[128] ;
 ull bv[MAXN] ;
 /* assumes bv is valid */
 int diameter ;
-vector<pair<int, int> > edgepairs ;
-int epn ;
-int bigpopcount(ull v) {
-   unsigned long long t1 = v ;
-   unsigned long long t2 = (v >> 64) ;
-   return __builtin_popcountll(t1) + __builtin_popcountll(t2) ;
-}
-int bigffs(ull v) {
-   unsigned long long t1 = v ;
-   if (t1)
-      return ffsll(t1) ;
-   return 64 + ffsll(v >> 64) ;
-}
 double fastapsp() {
    ull seen[MAXN] ;
    ull dodd[MAXN] ;
    ull deven[MAXN] ;
    for (int i=0; i<n; i++)
-      seen[i] = onebit[i] | bv[i] ;
+      seen[i] = (1LL << i) | bv[i] ;
    int cnt = n ;
    int d = 1 ;
    int left = n * n - n - 2 * e ;
@@ -68,14 +53,14 @@ double fastapsp() {
          ull r = 0 ;
          ull m = bv[i] ;
          while (m) {
-            int b = bigffs(m)-1 ;
-            m ^= onebit[b] ;
+            int b = ffsll(m)-1 ;
+            m ^= 1LL << b ;
             r |= dodd[b] ;
          }
          deven[i] = r ;
          ull nw = r & ~seen[i] ;
          seen[i] |= r ;
-         left -= bigpopcount(nw) ;
+         left -= __builtin_popcountll(nw) ;
       }
       if (left == 0)
          break ;
@@ -85,14 +70,14 @@ double fastapsp() {
          ull r = 0 ;
          ull m = bv[i] ;
          while (m) {
-            int b = bigffs(m)-1 ;
-            m ^= onebit[b] ;
+            int b = ffsll(m)-1 ;
+            m ^= 1LL << b ;
             r |= deven[b] ;
          }
          dodd[i] = r ;
          ull nw = r & ~seen[i] ;
          seen[i] |= r ;
-         left -= bigpopcount(nw) ;
+         left -= __builtin_popcountll(nw) ;
       }
       if (left == oleft)
          return 1e20 ;
@@ -102,14 +87,14 @@ double fastapsp() {
       d++ ;
    }
    diameter = d ;
-   return sum / (double)(n*(n-1)) ;
+   return d + sum / (double)(n*(n-1)) ;
 }
 double goal = 0 ;
 int k ;
 vector<pair<int, int> > edges ;
 void addedge(int a, int b) {
-   bv[a] |= onebit[b] ;
-   bv[b] |= onebit[a] ;
+   bv[a] |= 1LL << b ;
+   bv[b] |= 1LL << a ;
    edges.push_back({a,b}) ;
 }
 double best = 1000 ;
@@ -118,6 +103,7 @@ const int maxcount = 100 ;
 double lastavg ;
 int cnt = 0 ;
 double pr = 0 ;
+long long countlim ;
 int processgraph() {
    processed++ ;
    e = (int)edges.size() ;
@@ -157,34 +143,24 @@ int lasti, lastj ;
 void doswap(int i, int j) {
    lasti = i ;
    lastj = j ;
-   bv[edges[i].first] &= ~(onebit[edges[i].second]) ;
-   bv[edges[i].second] &= ~(onebit[edges[i].first]) ;
-   bv[edges[j].first] &= ~(onebit[edges[j].second]) ;
-   bv[edges[j].second] &= ~(onebit[edges[j].first]) ;
+   bv[edges[i].first] &= ~(1LL << edges[i].second) ;
+   bv[edges[i].second] &= ~(1LL << edges[i].first) ;
+   bv[edges[j].first] &= ~(1LL << edges[j].second) ;
+   bv[edges[j].second] &= ~(1LL << edges[j].first) ;
    swap(edges[i].second, edges[j].second) ;
-   bv[edges[i].first] |= (onebit[edges[i].second]) ;
-   bv[edges[i].second] |= (onebit[edges[i].first]) ;
-   bv[edges[j].first] |= (onebit[edges[j].second]) ;
-   bv[edges[j].second] |= (onebit[edges[j].first]) ;
+   bv[edges[i].first] |= (1LL << edges[i].second) ;
+   bv[edges[i].second] |= (1LL << edges[i].first) ;
+   bv[edges[j].first] |= (1LL << edges[j].second) ;
+   bv[edges[j].second] |= (1LL << edges[j].first) ;
 }
-int swaptwo() {
+void swaptwo() {
    int ec = edges.size() ;
-   int r = 0 ;
    while (1) {
-      if (epn == 0) {
-         epn = edgepairs.size() ;
-         r = 1 ;
-      }
-      int ij = (int)(epn*drand48()) ;
-      epn-- ;
-      if (ij != epn)
-         swap(edgepairs[ij], edgepairs[epn]) ;
-      ij = epn ;
-      int i = edgepairs[ij].first ;
-      int j = edgepairs[ij].second ;
-      if ((i < j) ^ (edges[i].first < edges[i].second) ^
-                    (edges[j].first ^ edges[j].second))
-         swap(edges[i].first, edges[i].second) ;
+      int i = (int)(ec*drand48()) ;
+      swap(edges[i].first, edges[i].second) ;
+      int j = (int)(ec*drand48()) ;
+      while (i == j)
+         j = (int)(ec*drand48()) ;
       if (edges[i].first == edges[j].first ||
           edges[i].first == edges[j].second ||
           edges[i].second == edges[j].first ||
@@ -193,16 +169,11 @@ int swaptwo() {
           ((bv[edges[i].second] >> edges[j].first) & 1))
          continue ;
       doswap(i, j) ;
-      return r ;
+      return ;
    }
 }
 double multiplier = 0.99 ;
 int main(int argc, char *argv[]) {
-   srand48(time(0)) ;
-   ull one = 1 ;
-   onebit[0] = one ;
-   for (int i=1; i<128; i++)
-      onebit[i] = onebit[i-1] + onebit[i-1] ;
    while (argc > 1 && argv[1][0] == '-') {
       argc-- ;
       argv++ ;
@@ -212,17 +183,12 @@ case 'm':
          argc-- ;
          argv++ ;
          break ;
-case 'T':
-         maxtime = atof(argv[1]) ;
-         argc-- ;
-         argv++ ;
-         break ;
 default:
          cout << "Bad argument " << argv[0] << endl ;
          exit(0) ;
       }
    }
-   pstart = start = walltime() ;
+   start = walltime() ;
    bool ingraph = 0 ;
    bool early = 0 ;
    n = atol(argv[1]) ;
@@ -253,31 +219,30 @@ default:
          left -= n/2 ;
       }
    }
-   for (int i=0; i<(int)edges.size(); i++)
-      for (int j=0; j<(int)edges.size(); j++)
-         if (i != j)
-            edgepairs.push_back({i,j}) ;
-   epn = edgepairs.size() ;
    processgraph() ;
    double curr = lastavg ;
    swaptwo() ;
    double frac = 0.001 ;
    pr = frac ;
-   int triedall = 0 ;
+   countlim = 1000 ;
+   long long countdown = countlim ;
    while (1) {
       if (processgraph())
          break ;
-      if (triedall || lastavg <= curr || drand48() < frac) {
+      if (lastavg <= curr || drand48() < frac) {
          curr = lastavg ;
-         epn = edgepairs.size() ;
+      } else if (0 && countdown-- <= 0) {
+         curr = lastavg ;
+         countlim += countlim / 10 ;
+         if (countlim > e*e*2)
+            countlim = e*e*2 ;
+         countdown = countlim ;
       } else {
          doswap(lasti, lastj) ;
          lastavg = curr ;
       }
-      triedall = swaptwo() ;
+      swaptwo() ;
       if ((processed & 65535) == 0) {
-         if (walltime() - pstart > maxtime)
-            break ;
          frac *= multiplier ;
          if (frac < 1e-6)
             frac = 1e-6 ;

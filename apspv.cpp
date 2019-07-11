@@ -11,7 +11,7 @@
 #include <inttypes.h>
 #include <sys/time.h>
 using namespace std ;
-typedef __uint128_t ull ;
+typedef unsigned long long ull ;
 static double start, pstart ;
 double maxtime = 1000000000 ;
 double walltime() {
@@ -29,31 +29,19 @@ const int MAXBUF = 1000 ;
 char mbuf[MAXBUF+1] ;
 int e ;
 int n ;
-const int MAXN = 128 ;
+const int MAXN = 64 ;
 const int INF = MAXN ;
-ull onebit[128] ;
 ull bv[MAXN] ;
 /* assumes bv is valid */
 int diameter ;
 vector<pair<int, int> > edgepairs ;
 int epn ;
-int bigpopcount(ull v) {
-   unsigned long long t1 = v ;
-   unsigned long long t2 = (v >> 64) ;
-   return __builtin_popcountll(t1) + __builtin_popcountll(t2) ;
-}
-int bigffs(ull v) {
-   unsigned long long t1 = v ;
-   if (t1)
-      return ffsll(t1) ;
-   return 64 + ffsll(v >> 64) ;
-}
 double fastapsp() {
    ull seen[MAXN] ;
    ull dodd[MAXN] ;
    ull deven[MAXN] ;
    for (int i=0; i<n; i++)
-      seen[i] = onebit[i] | bv[i] ;
+      seen[i] = (1LL << i) | bv[i] ;
    int cnt = n ;
    int d = 1 ;
    int left = n * n - n - 2 * e ;
@@ -68,14 +56,14 @@ double fastapsp() {
          ull r = 0 ;
          ull m = bv[i] ;
          while (m) {
-            int b = bigffs(m)-1 ;
-            m ^= onebit[b] ;
+            int b = ffsll(m)-1 ;
+            m ^= 1LL << b ;
             r |= dodd[b] ;
          }
          deven[i] = r ;
          ull nw = r & ~seen[i] ;
          seen[i] |= r ;
-         left -= bigpopcount(nw) ;
+         left -= __builtin_popcountll(nw) ;
       }
       if (left == 0)
          break ;
@@ -85,14 +73,14 @@ double fastapsp() {
          ull r = 0 ;
          ull m = bv[i] ;
          while (m) {
-            int b = bigffs(m)-1 ;
-            m ^= onebit[b] ;
+            int b = ffsll(m)-1 ;
+            m ^= 1LL << b ;
             r |= deven[b] ;
          }
          dodd[i] = r ;
          ull nw = r & ~seen[i] ;
          seen[i] |= r ;
-         left -= bigpopcount(nw) ;
+         left -= __builtin_popcountll(nw) ;
       }
       if (left == oleft)
          return 1e20 ;
@@ -108,8 +96,8 @@ double goal = 0 ;
 int k ;
 vector<pair<int, int> > edges ;
 void addedge(int a, int b) {
-   bv[a] |= onebit[b] ;
-   bv[b] |= onebit[a] ;
+   bv[a] |= 1LL << b ;
+   bv[b] |= 1LL << a ;
    edges.push_back({a,b}) ;
 }
 double best = 1000 ;
@@ -157,15 +145,15 @@ int lasti, lastj ;
 void doswap(int i, int j) {
    lasti = i ;
    lastj = j ;
-   bv[edges[i].first] &= ~(onebit[edges[i].second]) ;
-   bv[edges[i].second] &= ~(onebit[edges[i].first]) ;
-   bv[edges[j].first] &= ~(onebit[edges[j].second]) ;
-   bv[edges[j].second] &= ~(onebit[edges[j].first]) ;
+   bv[edges[i].first] &= ~(1LL << edges[i].second) ;
+   bv[edges[i].second] &= ~(1LL << edges[i].first) ;
+   bv[edges[j].first] &= ~(1LL << edges[j].second) ;
+   bv[edges[j].second] &= ~(1LL << edges[j].first) ;
    swap(edges[i].second, edges[j].second) ;
-   bv[edges[i].first] |= (onebit[edges[i].second]) ;
-   bv[edges[i].second] |= (onebit[edges[i].first]) ;
-   bv[edges[j].first] |= (onebit[edges[j].second]) ;
-   bv[edges[j].second] |= (onebit[edges[j].first]) ;
+   bv[edges[i].first] |= (1LL << edges[i].second) ;
+   bv[edges[i].second] |= (1LL << edges[i].first) ;
+   bv[edges[j].first] |= (1LL << edges[j].second) ;
+   bv[edges[j].second] |= (1LL << edges[j].first) ;
 }
 int swaptwo() {
    int ec = edges.size() ;
@@ -199,10 +187,6 @@ int swaptwo() {
 double multiplier = 0.99 ;
 int main(int argc, char *argv[]) {
    srand48(time(0)) ;
-   ull one = 1 ;
-   onebit[0] = one ;
-   for (int i=1; i<128; i++)
-      onebit[i] = onebit[i-1] + onebit[i-1] ;
    while (argc > 1 && argv[1][0] == '-') {
       argc-- ;
       argv++ ;
