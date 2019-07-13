@@ -15,6 +15,10 @@ const int INF = MAXN ;
 int adj[MAXN][MAXN] ;
 int e ;
 int k ;
+void error(const char *s) {
+   cerr << s << endl ;
+   exit(10) ;
+}
 void apsp() {
    for (int k=0; k<n; k++)
       for (int i=0; i<n; i++)
@@ -136,6 +140,23 @@ void dogenreg() {
    if (ingraph)
       processgraph() ;
 }
+int useg6 = 0 ;
 int main(int argc, char *argv[]) {
-   dog6() ;
+   while (argc > 1 && argv[1][0] == '-') {
+      argc-- ;
+      argv++ ;
+      switch(argv[0][1]) {
+case 'g':
+         if (strcmp(argv[0], "-g6") == 1) {
+            useg6 = 1 ;
+            break ;
+         }
+default:
+         error("! bad argument") ;
+      }
+   }
+   if (useg6)
+      dog6() ;
+   else
+      dogenreg() ;
 }
