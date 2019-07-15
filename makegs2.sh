@@ -1,0 +1,1 @@
+g++ -I/usr/local/Cellar/clp/1.17.2/include/clp/coin -I/usr/local/Cellar/coinutils/2.11.2/include/coinutils/coin -march=native -Wsign-compare -g -std=c++17 -lClp -lCoinUtils -L/usr/local/Cellar/clp/1.17.2/lib -L/usr/local/Cellar/coinutils/2.11.2/lib/ -O3 -o gs2 gs2.cpp

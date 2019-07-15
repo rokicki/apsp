@@ -9,12 +9,13 @@
 #include "ClpPresolve.hpp"
 #include <cstdio>
 using namespace std ;
-const double eps = 1e-8 ;
+const double eps = 1e-6 ;
 const int MAXBUF = 16000 ;
 char mbuf[MAXBUF+1] ;
 int n ;
 const int MAXN = 128 ;
 const int INF = MAXN ;
+double bestflow = 1e9 ;
 int adj[MAXN][MAXN] ;
 int e ;
 int k ;
@@ -76,7 +77,34 @@ double dolp(const char *fn) {
 } 
 void processgraph() {
    int k = 2 * e / n ;
+   double optsum = k ;
+   int left = n - 1 - k ;
+   int d = 2 ;
+   int cur = k ;
+   while (left) {
+      cur *= k-1 ;
+      int thislev = min(left, cur) ;
+      left -= thislev ;
+      optsum += thislev * d ;
+      d++ ;
+   }
+   double goalpbar = optsum / (double)(n-1) ;
+   double goalt = optsum*n / (2.0*e) ;
    apsp() ;
+   int dia = 1 ;
+   int sum = 0 ;
+   for (int i=0; i<n; i++)
+      for (int j=0; j<n; j++) {
+         sum += adj[i][j] ;
+         dia = max(dia, adj[i][j]) ;
+         totflow[i][j] = 0 ;
+      }
+   double pbar = sum / (double)(n*(n-1)) ;
+   double xflow = sum /(2.0*e) ;
+   if (xflow >= bestflow - eps) {
+      newgraph() ;
+      return ;
+   }
    int pid = getpid() ;
    char fbuf[100] ;
    sprintf(fbuf, "t%d.lp", pid) ;
@@ -113,7 +141,11 @@ void processgraph() {
    fprintf(f, "end\n") ;
    fclose(f) ;
    double res = dolp(fbuf) ;
-   cout << "Result is " << res << endl ;
+   if (res < bestflow)
+      bestflow = res ;
+   cout << "N " << n << " k " << k << " pbar " << pbar << " f " << goalpbar/pbar << " gs " << res << " f " << goalt/res << endl ;
+   if (res <= goalt + eps)
+      exit(0) ;
    newgraph() ;
 }
 void dog6() {

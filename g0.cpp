@@ -188,7 +188,7 @@ int main(int argc, char *argv[]) {
       argv++ ;
       switch(argv[0][1]) {
 case 'g':
-         if (strcmp(argv[0], "-g6") == 1) {
+         if (strcmp(argv[0], "-g6") == 0) {
             useg6 = 1 ;
             break ;
          }
