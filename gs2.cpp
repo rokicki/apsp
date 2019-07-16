@@ -101,10 +101,10 @@ void processgraph() {
       }
    double pbar = sum / (double)(n*(n-1)) ;
    double xflow = sum /(2.0*e) ;
-   if (xflow >= bestflow - eps) {
-      newgraph() ;
-      return ;
-   }
+// if (xflow >= bestflow - eps) {
+//    newgraph() ;
+//    return ;
+// }
    int pid = getpid() ;
    char fbuf[100] ;
    sprintf(fbuf, "t%d.lp", pid) ;

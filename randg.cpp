@@ -27,10 +27,17 @@ int main(int argc, char *argv[]) {
          int needed = n * k / 2 ;
          ll countdown = 4 * n * n ;
          while (needed) {
-            if (countdown-- < 0)
-               break ;
+            countdown-- ;
             int a = (int)(drand48()*n) ;
             int b = (int)(drand48()*n) ;
+            if (countdown < 0 && a != b && adj[a][b]) {
+               countdown = 4 * n * n ;
+               deg[a]-- ;
+               deg[b]-- ;
+               adj[a][b] = adj[b][a] = 0 ;
+               needed++ ;
+               continue ;
+            }
             if (a == b || deg[a] == k || deg[b] == k || adj[a][b])
                continue ;
             countdown = 4 * n * n ;
