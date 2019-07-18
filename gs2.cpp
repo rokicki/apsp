@@ -141,10 +141,13 @@ void processgraph() {
    fprintf(f, "end\n") ;
    fclose(f) ;
    double res = dolp(fbuf) ;
+   remove(fbuf) ;
    if (res < bestflow)
       bestflow = res ;
    cout << "N " << n << " k " << k << " pbar " << pbar << " f " << goalpbar/pbar << " gs " << res << " f " << goalt/res << endl ;
    if (res <= goalt + eps)
+      exit(0) ;
+   if (goalt/res >= goalpbar / pbar - eps)
       exit(0) ;
    newgraph() ;
 }
