@@ -41,12 +41,12 @@ for $f (@f1, @f2) {
          if (!defined($bestavg) || ($bestavg > $2)) {
             $dia = $1 ;
          }
-         $bestavg = $2 ;
+         $bestavg = $2 if !defined($bestavg) || $2 < $bestavg ;
       } elsif (/Order \S+ degree \d+ diameter (\S+) avg (\S+)/) {
          if (!defined($bestavg) || ($bestavg > $2)) {
             $dia = $1 ;
          }
-         $bestavg = $2 ;
+         $bestavg = $2 if !defined($bestavg) ||  $2 < $bestavg ;
       } elsif (/Processed/) {
          $finished = 1 ;
       }
