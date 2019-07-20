@@ -6,7 +6,7 @@
 #include <cstdio>
 #include <inttypes.h>
 using namespace std ;
-const int MAXBUF = 1000 ;
+const int MAXBUF = 16000 ;
 char mbuf[MAXBUF+1] ;
 int n ;
 const int MAXN = 128 ;
