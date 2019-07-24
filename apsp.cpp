@@ -9,7 +9,7 @@ using namespace std ;
 const int MAXBUF = 1000 ;
 char mbuf[MAXBUF+1] ;
 int n ;
-const int MAXN = 128 ;
+const int MAXN = 512 ;
 const int INF = MAXN ;
 int adj[MAXN][MAXN] ;
 int e ;
