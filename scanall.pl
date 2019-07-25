@@ -1,3 +1,4 @@
+my $only = shift ;
 open F, "scanall.log" or die "Can't read scanall.log" ;
 while (<F>) {
    chomp ;
@@ -13,7 +14,7 @@ for ($n=4; $n<=128; $n++) {
    for ($k=2; $k<$n; $k++) {
       next if ($n & 1) && ($k & 1) ;
       next if !defined($e[$n][$k]) ;
-      if ($e[$n][$k] == 0) {
+      if ((defined($only) && $only != $n) || $e[$n][$k] == 0) {
          print "$lin[$n][$k]\n" ;
       } else {
          system("perl scan.pl $n $k") ;
